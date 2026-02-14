@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: nedcloud-dev-db
+    environment:
+      POSTGRES_USER: ${DB_USER:-nedcloud}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-nedcloud_dev}
+      POSTGRES_DB: ${DB_NAME:-nedcloud}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-nedcloud} -d ${DB_NAME:-nedcloud}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_dev_data:

@@ -1,1 +1,361 @@
-# nedcloud-website
+# Nedcloud Solutions Website
+
+A modern, full-stack website for Nedcloud Solutions - Agentic AI & Infrastructure Consulting.
+
+## Tech Stack
+
+| Category | Technology |
+|----------|------------|
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS v3.4 (custom dark theme) |
+| Database | PostgreSQL 16 |
+| ORM | Prisma 6 |
+| Authentication | NextAuth.js v5 |
+| Animations | Framer Motion |
+| Icons | Lucide React |
+| Deployment | Docker (multi-stage build) |
+
+## Features
+
+- Modern dark theme with cyan/blue neon accents
+- Responsive design (mobile-first)
+- CMS for content management (services, projects, blog, testimonials, team)
+- Contact form with submission tracking
+- Admin dashboard with authentication
+- Docker deployment ready
+
+---
+
+## Development Setup
+
+### Prerequisites
+
+Ensure you have the following installed:
+
+| Tool | Version | Purpose |
+|------|---------|---------|
+| Node.js | 20+ | JavaScript runtime |
+| npm | 10+ | Package manager |
+| Docker | 24+ | Container runtime (for PostgreSQL) |
+| Docker Compose | 2+ | Multi-container orchestration |
+
+<details>
+<summary>Installing Prerequisites</summary>
+
+**Ubuntu/Debian:**
+```bash
+# Node.js 20
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Docker
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker $USER
+```
+
+**macOS:**
+```bash
+# Homebrew
+brew install node@20 docker docker-compose
+```
+
+**Windows:**
+- [Node.js installer](https://nodejs.org/en/download/)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+</details>
+
+### Step-by-Step Setup
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/NedCloud/nedcloud-website.git
+   cd nedcloud-website
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Create environment file:**
+   ```bash
+   cp .env.example .env.local
+   ```
+   
+   Edit `.env.local` with your values:
+   ```env
+   # Database
+   DATABASE_URL="postgresql://nedcloud:YOUR_DB_PASSWORD@localhost:5432/nedcloud"
+   DB_PASSWORD="YOUR_DB_PASSWORD"
+   
+   # NextAuth
+   NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
+   NEXTAUTH_URL="http://localhost:3000"
+   
+   # Admin (for seeding)
+   ADMIN_EMAIL="admin@nedcloudsolutions.nl"
+   ADMIN_PASSWORD="YOUR_ADMIN_PASSWORD"
+   ```
+   
+   Generate secrets:
+   ```bash
+   # For NEXTAUTH_SECRET
+   openssl rand -base64 32
+   
+   # For DB_PASSWORD and ADMIN_PASSWORD
+   openssl rand -base64 16
+   ```
+
+4. **Start PostgreSQL database:**
+   ```bash
+   docker-compose -f docker-compose.dev.yml up -d
+   ```
+   
+   This starts a PostgreSQL container. Credentials are read from your `.env.local` file.
+
+5. **Initialize the database:**
+   
+   **Option A: Migrations (recommended)**
+   ```bash
+   npm run prisma:migrate
+   ```
+   Creates tables and saves migration history in `prisma/migrations/`.
+   
+   **Option B: Push (quick prototyping)**
+   ```bash
+   npm run db:push
+   ```
+   Syncs schema directly to database without migration files.
+
+6. **Seed initial data:**
+   ```bash
+   npm run prisma:seed
+   ```
+   Creates:
+   - Admin user (email/password from ADMIN_EMAIL/ADMIN_PASSWORD env vars)
+   - Default services (Agentic AI, Infrastructure, Cloud, Full-Stack)
+   - Sample testimonial
+   - Site settings
+
+7. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+   
+   Open http://localhost:3000
+
+---
+
+## Access Points
+
+| URL | Description |
+|-----|-------------|
+| http://localhost:3000 | Public website |
+| http://localhost:3000/admin/login | Admin dashboard |
+| http://localhost:3000/api | API endpoints |
+
+### Admin Credentials
+
+Set your admin credentials in `.env.local` before seeding:
+```
+ADMIN_EMAIL="admin@nedcloudsolutions.nl"
+ADMIN_PASSWORD="your-secure-password"
+```
+
+---
+
+## Available Scripts
+
+```bash
+# Development
+npm run dev              # Start dev server (http://localhost:3000)
+npm run build            # Build for production
+npm run start            # Start production server
+npm run lint             # Run ESLint
+
+# Database
+npm run prisma:generate  # Generate Prisma client
+npm run prisma:migrate   # Run migrations (creates tables)
+npm run prisma:studio    # Open Prisma Studio GUI (http://localhost:5555)
+npm run prisma:seed      # Seed database with initial data
+npm run db:push          # Push schema changes (no migrations)
+
+# Docker
+docker-compose -f docker-compose.dev.yml up -d    # Start dev database
+docker-compose -f docker-compose.dev.yml down     # Stop dev database
+docker-compose up -d                               # Production deployment
+docker-compose down                                # Stop production
+```
+
+---
+
+## Project Structure
+
+```
+nedcloud-website/
+├── src/
+│   ├── app/
+│   │   ├── page.tsx                # Homepage
+│   │   ├── about/                  # About page
+│   │   ├── services/               # Services page
+│   │   ├── projects/               # Projects page
+│   │   ├── blog/                   # Blog page
+│   │   ├── contact/                # Contact page
+│   │   ├── admin/
+│   │   │   ├── login/              # Admin login
+│   │   │   └── (dashboard)/        # Protected admin routes
+│   │   │       ├── page.tsx        # Dashboard overview
+│   │   │       ├── services/       # Manage services
+│   │   │       ├── projects/       # Manage projects
+│   │   │       ├── blog/           # Manage blog
+│   │   │       ├── testimonials/   # Manage testimonials
+│   │   │       ├── team/           # Manage team
+│   │   │       └── contacts/       # View submissions
+│   │   ├── api/
+│   │   │   ├── auth/[...all]/      # NextAuth endpoints
+│   │   │   ├── services/           # Services CRUD
+│   │   │   ├── projects/           # Projects CRUD
+│   │   │   ├── blog/               # Blog CRUD
+│   │   │   ├── testimonials/       # Testimonials CRUD
+│   │   │   └── team/               # Team CRUD
+│   │   ├── layout.tsx              # Root layout
+│   │   ├── globals.css             # Global styles
+│   │   └── not-found.tsx           # 404 page
+│   ├── components/
+│   │   ├── ui/                     # Button, Card, Input
+│   │   ├── layout/                 # Header, Footer
+│   │   ├── sections/               # Hero, Services, Projects, etc.
+│   │   └── admin/                  # Admin components
+│   ├── lib/
+│   │   ├── prisma.ts               # Prisma client singleton
+│   │   ├── auth.ts                 # NextAuth configuration
+│   │   └── utils.ts                # Utility functions (cn, etc.)
+│   └── types/                      # TypeScript declarations
+├── prisma/
+│   ├── schema.prisma               # Database models
+│   ├── seed.ts                     # Seed data
+│   └── migrations/                 # Migration files
+├── public/                         # Static assets
+├── Dockerfile                      # Multi-stage Docker build
+├── docker-compose.yml              # Production deployment
+├── docker-compose.dev.yml          # Development database
+├── tailwind.config.ts              # Tailwind configuration
+├── next.config.ts                  # Next.js configuration
+└── package.json                    # Dependencies & scripts
+```
+
+---
+
+## Environment Variables
+
+| Variable | Required | Description | Example |
+|----------|----------|-------------|---------|
+| `DATABASE_URL` | Yes | PostgreSQL connection string | `postgresql://user:pass@host:5432/db` |
+| `NEXTAUTH_SECRET` | Yes | Secret for JWT encryption | 32+ random characters |
+| `NEXTAUTH_URL` | Yes | Base URL of your application | `http://localhost:3000` |
+
+---
+
+## Database Schema
+
+| Model | Description |
+|-------|-------------|
+| `User` | Admin users with role (ADMIN/EDITOR) |
+| `Service` | Services offered (Agentic AI, Infrastructure, etc.) |
+| `Project` | Portfolio projects with technologies |
+| `Post` | Blog posts with tags and author |
+| `Testimonial` | Client testimonials with approval workflow |
+| `TeamMember` | Team members with social links |
+| `ContactSubmission` | Contact form submissions |
+| `SiteSettings` | Site-wide configuration |
+
+---
+
+## Production Deployment
+
+### Docker Compose (recommended)
+
+```bash
+# Build and start
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop
+docker-compose down
+```
+
+### Manual Deployment
+
+```bash
+# Build
+npm run build
+
+# Start with environment
+DATABASE_URL="your-production-url" \
+NEXTAUTH_SECRET="your-production-secret" \
+NEXTAUTH_URL="https://yourdomain.com" \
+npm run start
+```
+
+### Environment Checklist
+
+- [ ] Change `NEXTAUTH_URL` to production URL
+- [ ] Generate new `NEXTAUTH_SECRET` (don't reuse dev secret)
+- [ ] Use production PostgreSQL database
+- [ ] Change admin password
+- [ ] Set up SSL/HTTPS
+- [ ] Configure email for contact form (optional)
+
+---
+
+## Troubleshooting
+
+### Database Connection Error
+
+```bash
+# Check if database is running
+docker-compose -f docker-compose.dev.yml ps
+
+# View database logs
+docker-compose -f docker-compose.dev.yml logs postgres
+
+# Restart database
+docker-compose -f docker-compose.dev.yml restart postgres
+```
+
+### Prisma Client Error
+
+```bash
+# Regenerate Prisma client
+npm run prisma:generate
+```
+
+### Build Errors
+
+```bash
+# Clear Next.js cache
+rm -rf .next
+
+# Clear node_modules and reinstall
+rm -rf node_modules package-lock.json
+npm install
+```
+
+### Port Already in Use
+
+```bash
+# Find process using port 3000
+lsof -i :3000
+
+# Kill process
+kill -9 <PID>
+```
+
+---
+
+## License
+
+MIT License - See [LICENSE.md](LICENSE.md) for details.
