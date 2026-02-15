@@ -12,6 +12,7 @@ import {
   Mail,
   LogOut,
   ChevronLeft,
+  Settings,
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 
@@ -23,6 +24,7 @@ const navItems = [
   { href: '/admin/testimonials', icon: MessageSquareQuote, label: 'Testimonials' },
   { href: '/admin/team', icon: Users, label: 'Team' },
   { href: '/admin/contacts', icon: Mail, label: 'Contacts' },
+  { href: '/admin/settings', icon: Settings, label: 'Settings' },
 ]
 
 export function AdminSidebar() {
