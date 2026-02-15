@@ -5,7 +5,7 @@ const prisma = new PrismaClient()
 
 async function main() {
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@nedcloudsolutions.nl'
-  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'
+  const adminPassword = process.env.ADMIN_PASSWORD || 'changeme123'
 
   const adminUser = await prisma.user.upsert({
     where: { email: adminEmail },
