@@ -24,6 +24,13 @@ A modern, full-stack website for Nedcloud Solutions - Agentic AI & Infrastructur
 - Contact form with submission tracking
 - Admin dashboard with authentication
 - Docker deployment ready
+- **Security features:**
+  - NextAuth v5 authentication with bcrypt password hashing
+  - Rate limiting (100 API/10 auth requests per minute per IP)
+  - Input validation with Zod schemas
+  - XSS prevention with DOMPurify
+  - Security headers (CSP, HSTS, X-Frame-Options, etc.)
+  - Centralized security configuration
 
 ---
 
@@ -198,20 +205,23 @@ nedcloud-website/
 │   ├── app/
 │   │   ├── page.tsx                # Homepage
 │   │   ├── about/                  # About page
-│   │   ├── services/               # Services page
+│   │   ├── services/               # Services page + [slug] detail
 │   │   ├── projects/               # Projects page
 │   │   ├── blog/                   # Blog page
 │   │   ├── contact/                # Contact page
+│   │   ├── privacy/                # Privacy policy
+│   │   ├── terms/                  # Terms of service
 │   │   ├── admin/
 │   │   │   ├── login/              # Admin login
 │   │   │   └── (dashboard)/        # Protected admin routes
 │   │   │       ├── page.tsx        # Dashboard overview
 │   │   │       ├── services/       # Manage services
 │   │   │       ├── projects/       # Manage projects
-│   │   │       ├── blog/           # Manage blog
-│   │   │       ├── testimonials/   # Manage testimonials
-│   │   │       ├── team/           # Manage team
-│   │   │       └── contacts/       # View submissions
+│   │   │   ├── blog/           # Manage blog
+│   │   │   ├── testimonials/   # Manage testimonials
+│   │   │   ├── team/           # Manage team
+│   │   │   ├── contacts/       # View submissions
+│   │   │   └── settings/       # Admin settings (password change)
 │   │   ├── api/
 │   │   │   ├── auth/[...all]/      # NextAuth endpoints
 │   │   │   ├── services/           # Services CRUD
@@ -226,11 +236,16 @@ nedcloud-website/
 │   │   ├── ui/                     # Button, Card, Input
 │   │   ├── layout/                 # Header, Footer
 │   │   ├── sections/               # Hero, Services, Projects, etc.
-│   │   └── admin/                  # Admin components
+│   │   ├── admin/                  # Admin components
 │   ├── lib/
 │   │   ├── prisma.ts               # Prisma client singleton
 │   │   ├── auth.ts                 # NextAuth configuration
-│   │   └── utils.ts                # Utility functions (cn, etc.)
+│   │   ├── utils.ts                # Utility functions (cn, etc.)
+│   │   ├── sanitize.ts             # DOMPurify HTML sanitization
+│   │   ├── rateLimit.ts            # Rate limiting middleware
+│   │   ├── security.config.ts      # Central security configuration
+│   │   └── validations.ts          # Zod validation schemas
+│   ├── middleware.ts               # Auth middleware for admin routes
 │   └── types/                      # TypeScript declarations
 ├── prisma/
 │   ├── schema.prisma               # Database models
@@ -254,6 +269,75 @@ nedcloud-website/
 | `DATABASE_URL` | Yes | PostgreSQL connection string | `postgresql://user:pass@host:5432/db` |
 | `NEXTAUTH_SECRET` | Yes | Secret for JWT encryption | 32+ random characters |
 | `NEXTAUTH_URL` | Yes | Base URL of your application | `http://localhost:3000` |
+| `ADMIN_EMAIL` | Yes* | Admin email for seeding | `admin@nedcloudsolutions.nl` |
+| `ADMIN_PASSWORD` | Yes* | Admin password for seeding | Secure password |
+
+*Required for initial seeding only. Can be removed after first seed.
+
+---
+
+## Security
+
+### Authentication & Authorization
+
+- **NextAuth v5** with credentials provider
+- Passwords hashed with bcrypt (12 rounds by default)
+- JWT-based sessions with role-based access (ADMIN/EDITOR)
+- Middleware protection for all `/admin/*` routes
+
+### Rate Limiting
+
+Configured in `src/lib/security.config.ts`:
+
+| Route Type | Limit | Window |
+|------------|-------|--------|
+| API routes | 100 requests | 60 seconds |
+| Auth routes | 10 requests | 60 seconds |
+
+### Input Validation
+
+All API inputs validated with Zod schemas in `src/lib/validations.ts`:
+- Services, projects, blog posts, testimonials, team members
+- Password minimum length: 8 characters
+- Title max: 200 characters, content max: 100,000 characters
+
+### XSS Prevention
+
+- DOMPurify sanitizes all HTML content
+- Use `sanitizeHtml(content)` from `@/lib/sanitize`
+
+### Security Headers
+
+Automatically applied via `next.config.ts`:
+- Content-Security-Policy
+- Strict-Transport-Security (HSTS)
+- X-Frame-Options: SAMEORIGIN
+- X-Content-Type-Options: nosniff
+- Referrer-Policy: origin-when-cross-origin
+- Permissions-Policy: camera/microphone/geolocation disabled
+
+### Centralized Configuration
+
+All security values can be changed in one file:
+
+```typescript
+// src/lib/security.config.ts
+export const securityConfig = {
+  rateLimit: {
+    windowMs: 60 * 1000,
+    apiMaxRequests: 100,
+    authMaxRequests: 10,
+  },
+  validation: {
+    passwordMinLength: 8,
+    titleMaxLength: 200,
+    // ... more settings
+  },
+  session: {
+    passwordHashRounds: 12,
+  },
+}
+```
 
 ---
 
