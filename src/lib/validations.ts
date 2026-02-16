@@ -73,6 +73,18 @@ export const updateUserSchema = z.object({
   name: z.string().min(1, 'Name is required').max(v.nameMaxLength),
 })
 
+export const contactSubmissionSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(v.nameMaxLength),
+  email: z.string().email('Must be a valid email').max(v.emailMaxLength),
+  company: z.string().max(v.nameMaxLength).optional(),
+  subject: z.string().max(v.titleMaxLength).optional(),
+  message: z.string().min(1, 'Message is required').max(v.contentMaxLength),
+})
+
+export const contactStatusSchema = z.object({
+  status: z.enum(['new', 'read', 'replied']),
+})
+
 export type ValidationResult<T> = 
   | { success: true; data: T }
   | { success: false; errors: string[] }

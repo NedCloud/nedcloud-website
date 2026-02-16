@@ -2,22 +2,49 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Mail, User, Building, MessageSquare, Send } from 'lucide-react'
+import { Mail, User, Building, Send } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 
 export const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsSubmitting(true)
+    setError(null)
     
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    const form = e.currentTarget
+    const formData = new FormData(form)
     
-    setIsSubmitting(false)
-    setIsSubmitted(true)
+    const data = {
+      name: formData.get('name') as string,
+      email: formData.get('email') as string,
+      company: formData.get('company') as string || undefined,
+      subject: formData.get('subject') as string || undefined,
+      message: formData.get('message') as string,
+    }
+    
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+      
+      if (response.ok) {
+        setIsSubmitted(true)
+      } else {
+        const result = await response.json()
+        setError(result.error || 'Failed to send message')
+      }
+    } catch {
+      setError('Failed to send message. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -73,6 +100,11 @@ export const Contact = () => {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
+                {error && (
+                  <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
+                    {error}
+                  </div>
+                )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
