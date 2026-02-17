@@ -19,7 +19,7 @@ export const Testimonials = () => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/testimonials')
+    fetch('/api/testimonials', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         setTestimonials(data)

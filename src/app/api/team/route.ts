@@ -42,7 +42,11 @@ export async function GET(request: NextRequest) {
       200
     )
 
-    return NextResponse.json(team)
+    const response = NextResponse.json(team)
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    return response
   } catch {
     return NextResponse.json(
       { error: 'Failed to fetch team members' },

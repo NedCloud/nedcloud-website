@@ -23,7 +23,7 @@ export function SettingsManager({ initialUser }: { initialUser: { name: string |
   const [copiedCode, setCopiedCode] = useState(false)
 
   useEffect(() => {
-    fetch('/api/2fa/status')
+    fetch('/api/2fa/status', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         setTwoFactorEnabled(data.enabled)

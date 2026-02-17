@@ -86,6 +86,8 @@ async function main() {
     })
   }
 
+  await prisma.testimonial.deleteMany({})
+
   const testimonials = [
     {
       name: 'Dennis Wals',
