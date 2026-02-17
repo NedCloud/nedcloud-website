@@ -1,12 +1,13 @@
 # NEDCLOUD WEBSITE KNOWLEDGE BASE
 
-**Generated:** 2026-02-15
-**Updated:** 2026-02-17
+**Generated:** 2026-02-17T14:15:44+01:00
+**Commit:** 64fc5af
+**Branch:** main
 **Stack:** Next.js 16 (App Router), TypeScript, Tailwind CSS v3.4, Prisma 6, PostgreSQL, NextAuth v5
 
 ## OVERVIEW
 
-Full-stack marketing website + CMS for Nedcloud Solutions (Agentic AI & Infrastructure consulting). Dark futuristic theme with neon accents.
+Full-stack marketing website + CMS for Nedcloud Solutions (Agentic AI & Infrastructure consulting). Dark futuristic theme with neon accents. Features admin dashboard with 2FA, centralized security layer, and automated backups.
 
 ## STRUCTURE
 

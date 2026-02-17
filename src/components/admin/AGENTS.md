@@ -1,51 +1,51 @@
-# ADMIN COMPONENTS
+# Admin CRUD Managers
 
-**Purpose:** CMS CRUD managers with modal pattern for content management.
+**Purpose:** CMS components with modal pattern for content management.
 
-## PATTERN
+## Pattern
 
 All managers follow identical structure:
 
 ```tsx
 'use client'
 import { useState } from 'react'
-import { Plus, Pencil, Trash2, X } from 'lucide-react'
-
-interface Item { id: string; ... }
-
-const emptyItem: Partial<Item> = { ... }
 
 export function XManager({ initialItems }: { initialItems: Item[] }) {
   const [items, setItems] = useState(initialItems)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<Partial<Item> | null>(null)
-  
-  // CRUD: openAddModal, openEditModal, closeModal, handleSave, deleteItem
 }
 ```
 
-## MANAGERS
+## Managers
 
 | Manager | Model | Key Fields |
 |---------|-------|------------|
-| ServicesManager | Service | title, slug, description, content, icon, features[], order, published |
-| ProjectsManager | Project | title, slug, description, content, image, technologies[], url, github, featured, published |
-| BlogManager | Post | title, slug, excerpt, content, coverImage, tags[], featured, published, publishedAt |
+| ServicesManager | Service | title, slug, description, features[], order, published |
+| ProjectsManager | Project | title, slug, description, technologies[], url, github, featured, published |
+| BlogManager | Post | title, slug, excerpt, content, coverImage, tags[], featured, published |
 | TestimonialsManager | Testimonial | name, role, company, content, avatar, rating, featured, approved |
 | TeamManager | TeamMember | name, role, bio, image, email, linkedin, github, twitter, order, published |
-| SettingsManager | User | name, password change |
+| ContactsManager | ContactSubmission | name, email, company, subject, message, status |
+| SettingsManager | User | name, password change, **2FA management** |
 
-## API ROUTES
+## API Routes
 
-All follow REST pattern at `/api/[resource]/[id?]`:
-- POST → create (auto-assigns authorId from first ADMIN for posts/projects)
-- PUT → update (partial update supported)
+All at `/api/[resource]/[id?]`:
+- POST → create (auto-assigns authorId from first ADMIN)
+- PUT → update
 - DELETE → remove
-- GET `?all=true` → returns all records (for admin), else filtered by published/approved
+- GET `?all=true` → all records (admin), else filtered by published/approved
 
-## STYLING
+## 2FA in SettingsManager
 
-- Dark theme: `bg-dark-800`, `text-white`, `border-dark-700`
+Enable/disable two-factor authentication:
+- Enable: GET `/api/2fa/setup` → QR code → POST `/api/2fa/verify`
+- Disable: POST `/api/2fa/disable` with verification code
+- Status: GET `/api/2fa/status` on mount
+
+## Styling
+
+- Dark: `bg-dark-800`, `text-white`, `border-dark-700`
 - Neon accents: `text-neon-blue`, `bg-neon-green/10`
-- Glassmorphism: `backdrop-blur-sm`, `bg-dark-800/50`
 - Modal: `fixed inset-0 bg-black/50`, `max-w-2xl`, `max-h-[90vh] overflow-y-auto`
