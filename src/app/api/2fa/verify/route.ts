@@ -5,10 +5,16 @@ import {
   verifyTOTP,
   generateBackupCodes,
   hashBackupCodes,
-  encryptSecret
+  decryptSecret
 } from '@/lib/totp'
+import { rateLimit } from '@/lib/rateLimit'
+
+const authRateLimit = rateLimit('auth')
 
 export async function POST(request: NextRequest) {
+  const limitedResponse = await authRateLimit(request)
+  if (limitedResponse) return limitedResponse
+
   const session = await auth()
 
   if (!session?.user?.id) {
@@ -42,14 +48,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const decryptedSecret = encryptedSecret.split(':')[1]
-      ? encryptedSecret
-      : Buffer.from(encryptedSecret, 'base64').toString('utf8')
-
-    const isValid = verifyTOTP(token, decryptedSecret.includes(':')
-      ? require('@/lib/totp').decryptSecret(encryptedSecret)
-      : decryptedSecret
-    )
+    const decryptedSecret = decryptSecret(encryptedSecret)
+    const isValid = verifyTOTP(token, decryptedSecret)
 
     if (!isValid) {
       return NextResponse.json(

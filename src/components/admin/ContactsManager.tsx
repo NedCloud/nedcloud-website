@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Mail, Building, Calendar, CheckCircle, Circle, Trash2, X } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 
-interface ContactSubmission {
+export interface ContactSubmission {
   id: string
   name: string
   email: string

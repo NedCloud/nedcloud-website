@@ -6,5 +6,10 @@ export default async function AdminContactsPage() {
     orderBy: { createdAt: 'desc' },
   })
 
-  return <ContactsManager initialContacts={contacts as any} />
+  const typedContacts = contacts.map(c => ({
+    ...c,
+    status: c.status as 'new' | 'read' | 'replied'
+  }))
+
+  return <ContactsManager initialContacts={typedContacts} />
 }
