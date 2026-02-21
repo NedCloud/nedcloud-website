@@ -219,3 +219,107 @@
   }
 }
 
+{
+  "type": "API_REQUEST",
+  "timestamp": "2026-02-21T16:46:36.232Z",
+  "severity": "MEDIUM",
+  "ip": "192.168.2.157",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+  "details": {
+    "method": "GET",
+    "route": "/api/testimonials",
+    "status": 200
+  }
+}
+
+{
+  "type": "API_REQUEST",
+  "timestamp": "2026-02-21T16:55:07.611Z",
+  "severity": "MEDIUM",
+  "ip": "192.168.2.157",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+  "details": {
+    "method": "GET",
+    "route": "/api/testimonials",
+    "status": 200
+  }
+}
+
+{
+  "type": "API_REQUEST",
+  "timestamp": "2026-02-21T17:10:35.734Z",
+  "severity": "MEDIUM",
+  "ip": "192.168.2.157",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+  "details": {
+    "method": "GET",
+    "route": "/api/testimonials",
+    "status": 200
+  }
+}
+
+{
+  "type": "API_REQUEST",
+  "timestamp": "2026-02-21T17:10:35.747Z",
+  "severity": "MEDIUM",
+  "ip": "192.168.2.157",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+  "details": {
+    "method": "GET",
+    "route": "/api/testimonials",
+    "status": 200
+  }
+}
+
+{
+  "type": "API_REQUEST",
+  "timestamp": "2026-02-21T17:10:46.628Z",
+  "severity": "MEDIUM",
+  "ip": "192.168.2.157",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+  "details": {
+    "method": "GET",
+    "route": "/api/testimonials",
+    "status": 200
+  }
+}
+
+{
+  "type": "API_REQUEST",
+  "timestamp": "2026-02-21T17:10:46.639Z",
+  "severity": "MEDIUM",
+  "ip": "192.168.2.157",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+  "details": {
+    "method": "GET",
+    "route": "/api/testimonials",
+    "status": 200
+  }
+}
+
+{
+  "type": "API_REQUEST",
+  "timestamp": "2026-02-21T17:13:48.836Z",
+  "severity": "MEDIUM",
+  "ip": "192.168.2.157",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+  "details": {
+    "method": "GET",
+    "route": "/api/testimonials",
+    "status": 200
+  }
+}
+
+{
+  "type": "API_REQUEST",
+  "timestamp": "2026-02-21T17:23:27.018Z",
+  "severity": "MEDIUM",
+  "ip": "192.168.2.157",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+  "details": {
+    "method": "GET",
+    "route": "/api/testimonials",
+    "status": 200
+  }
+}
+
