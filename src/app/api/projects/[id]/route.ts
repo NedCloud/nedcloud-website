@@ -23,6 +23,16 @@ export async function GET(
   }
 }
 
+import { logAPIRequest } from '@/lib/security-logger'
+
+function getClientIp(request: NextRequest): string {
+  const forwarded = request.headers.get('x-forwarded-for')
+  const realIp = request.headers.get('x-real-ip')
+  if (forwarded) return forwarded.split(',')[0].trim()
+  if (realIp) return realIp
+  return 'unknown'
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -33,10 +43,10 @@ export async function PUT(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  try {
+   try {
     const { id } = await params
     const body = await request.json()
-    
+
     const project = await prisma.project.update({
       where: { id },
       data: {
@@ -54,9 +64,25 @@ export async function PUT(
         endDate: body.endDate ? new Date(body.endDate) : null,
       },
     })
-    
+
+    logAPIRequest(
+      getClientIp(request),
+      request.headers.get('user-agent') || 'unknown',
+      'PUT',
+      '/api/projects/[id]',
+      session?.user?.id,
+      200
+    )
     return NextResponse.json(project)
   } catch (error) {
+    logAPIRequest(
+      getClientIp(request),
+      request.headers.get('user-agent') || 'unknown',
+      'PUT',
+      '/api/projects/[id]',
+      session?.user?.id,
+      500
+    )
     return NextResponse.json({ error: 'Failed to update project' }, { status: 500 })
   }
 }
@@ -66,16 +92,32 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth()
-  
+
   if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   try {
     const { id } = await params
+    logAPIRequest(
+      getClientIp(request),
+      request.headers.get('user-agent') || 'unknown',
+      'DELETE',
+      '/api/projects/[id]',
+      session?.user?.id,
+      200
+    )
     await prisma.project.delete({ where: { id } })
     return NextResponse.json({ success: true })
   } catch (error) {
+    logAPIRequest(
+      getClientIp(request),
+      request.headers.get('user-agent') || 'unknown',
+      'DELETE',
+      '/api/projects/[id]',
+      session?.user?.id,
+      500
+    )
     return NextResponse.json({ error: 'Failed to delete project' }, { status: 500 })
   }
 }

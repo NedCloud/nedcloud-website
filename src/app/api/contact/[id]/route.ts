@@ -27,6 +27,16 @@ export async function GET(
   }
 }
 
+import { logAPIRequest } from '@/lib/security-logger'
+
+function getClientIp(request: NextRequest): string {
+  const forwarded = request.headers.get('x-forwarded-for')
+  const realIp = request.headers.get('x-real-ip')
+  if (forwarded) return forwarded.split(',')[0].trim()
+  if (realIp) return realIp
+  return 'unknown'
+}
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -37,22 +47,38 @@ export async function PATCH(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  try {
+   try {
     const { id } = await params
     const body = await request.json()
-    
+
     const validation = validate(contactStatusSchema, body)
     if (!validation.success) {
       return NextResponse.json({ error: 'Validation failed', details: validation.errors }, { status: 400 })
     }
-    
+
     const contact = await prisma.contactSubmission.update({
       where: { id },
       data: { status: validation.data.status },
     })
-    
+
+    logAPIRequest(
+      getClientIp(request),
+      request.headers.get('user-agent') || 'unknown',
+      'PATCH',
+      '/api/contact/[id]',
+      session?.user?.id,
+      200
+    )
     return NextResponse.json(contact)
   } catch {
+    logAPIRequest(
+      getClientIp(request),
+      request.headers.get('user-agent') || 'unknown',
+      'PATCH',
+      '/api/contact/[id]',
+      session?.user?.id,
+      500
+    )
     return NextResponse.json({ error: 'Failed to update contact' }, { status: 500 })
   }
 }
@@ -62,16 +88,32 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth()
-  
+
   if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   try {
     const { id } = await params
+    logAPIRequest(
+      getClientIp(request),
+      request.headers.get('user-agent') || 'unknown',
+      'DELETE',
+      '/api/contact/[id]',
+      session?.user?.id,
+      200
+    )
     await prisma.contactSubmission.delete({ where: { id } })
     return NextResponse.json({ success: true })
   } catch {
+    logAPIRequest(
+      getClientIp(request),
+      request.headers.get('user-agent') || 'unknown',
+      'DELETE',
+      '/api/contact/[id]',
+      session?.user?.id,
+      500
+    )
     return NextResponse.json({ error: 'Failed to delete contact' }, { status: 500 })
   }
 }

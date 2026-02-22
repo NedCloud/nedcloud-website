@@ -1,0 +1,23 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Allow all search engines to crawl
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+# Sitemap location
+Sitemap: https://nedcloudsolutions.nl/sitemap.xml
+
+# Disallow admin routes
+Disallow: /admin/
+Disallow: /api/
+
+# Crawl rate
+Crawl-delay: 10

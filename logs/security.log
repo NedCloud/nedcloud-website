@@ -323,3 +323,29 @@
   }
 }
 
+{
+  "type": "API_REQUEST",
+  "timestamp": "2026-02-21T18:41:52.733Z",
+  "severity": "MEDIUM",
+  "ip": "192.168.2.157",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+  "details": {
+    "method": "GET",
+    "route": "/api/testimonials",
+    "status": 200
+  }
+}
+
+{
+  "type": "API_REQUEST",
+  "timestamp": "2026-02-21T18:44:38.501Z",
+  "severity": "MEDIUM",
+  "ip": "192.168.2.157",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+  "details": {
+    "method": "GET",
+    "route": "/api/testimonials",
+    "status": 200
+  }
+}
+

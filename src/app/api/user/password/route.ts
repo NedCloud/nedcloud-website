@@ -1,13 +1,19 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { compare, hash } from 'bcryptjs'
 import { validate, changePasswordSchema } from '@/lib/validations'
 import { securityConfig } from '@/lib/security.config'
+import { rateLimit } from '@/lib/rateLimit'
 
-export async function POST(request: Request) {
+const authRateLimit = rateLimit('auth')
+
+export async function POST(request: NextRequest) {
+  const limitedResponse = await authRateLimit(request)
+  if (limitedResponse) return limitedResponse
+
   const session = await auth()
-  
+   
   if (!session?.user?.email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }

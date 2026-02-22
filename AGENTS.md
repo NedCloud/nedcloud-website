@@ -84,7 +84,7 @@ scripts/
 ### Authentication & Authorization
 - **NextAuth v5** with credentials provider (bcryptjs password hashing)
 - **Two-Factor Authentication (2FA)**: TOTP-based (Google Authenticator, Authy compatible)
-- **Middleware protection**: `src/middleware.ts` protects all `/admin/*` routes
+- **Middleware protection**: `src/proxy.ts` protects all `/admin/*` routes (previously middleware.ts, renamed per Next.js convention)
 - **API authentication**: All mutation routes (POST, PUT, DELETE) require valid session
 - **Session strategy**: JWT with role-based access (ADMIN, EDITOR)
 
