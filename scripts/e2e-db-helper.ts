@@ -12,7 +12,7 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD
 const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET
 
-type Command = 'setup-user' | 'cleanup-credentials' | 'count-credentials'
+type Command = 'setup-user' | 'cleanup-credentials' | 'count-credentials' | 'reset-auth'
 
 interface SetupResult {
   success: true
@@ -30,7 +30,12 @@ interface CountResult {
   names: (string | null)[]
 }
 
-type Result = SetupResult | CleanupResult | CountResult
+interface ResetResult {
+  success: true
+  credentialsDeleted: number
+}
+
+type Result = SetupResult | CleanupResult | CountResult | ResetResult
 
 function getEnv(): { email: string; password: string; nextauthSecret: string } {
   if (!ADMIN_EMAIL) {
@@ -58,6 +63,7 @@ async function setupUser(): Promise<SetupResult> {
   await prisma.user.upsert({
     where: { email },
     update: {
+      password: await hash(password, passwordHashRounds),
       twoFactorEnabled: true,
       twoFactorSecret: encryptedSecret,
       twoFactorBackupCodes: hashedBackupCodes,
@@ -119,6 +125,35 @@ async function countCredentials(): Promise<CountResult> {
   }
 }
 
+async function resetAuth(): Promise<ResetResult> {
+  const { email } = getEnv()
+
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true },
+  })
+
+  if (!user) {
+    return { success: true, credentialsDeleted: 0 }
+  }
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      twoFactorEnabled: false,
+      twoFactorSecret: null,
+      twoFactorBackupCodes: [],
+      twoFactorVerifiedAt: null,
+    },
+  })
+
+  const result = await prisma.webAuthnCredential.deleteMany({
+    where: { userId: user.id },
+  })
+
+  return { success: true, credentialsDeleted: result.count }
+}
+
 async function run(): Promise<void> {
   const command = process.argv[2] as Command | undefined
 
@@ -137,6 +172,9 @@ async function run(): Promise<void> {
       break
     case 'count-credentials':
       result = await countCredentials()
+      break
+    case 'reset-auth':
+      result = await resetAuth()
       break
     default:
       throw new Error(`Unknown command: ${command}`)

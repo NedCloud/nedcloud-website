@@ -1,5 +1,6 @@
 import { test, expect, Page } from '@playwright/test'
 import { OTP } from 'otplib'
+import { execSync } from 'child_process'
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@nedcloudsolutions.nl'
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme-immediately-123!'
@@ -20,20 +21,41 @@ const BASE_URL = process.env.NEXTAUTH_URL || 'http://localhost:3000'
  * Note: This test requires the seeded admin user to exist in the database.
  * The user should be created via: `npm run prisma:seed`
  * with ADMIN_EMAIL and ADMIN_PASSWORD set in .env.local
- * 
- * IMPORTANT: These tests should be run sequentially (--workers=1) and may require
- * running `npm run prisma:seed` between test runs to reset the 2FA state.
  */
 
 test.describe.configure({ mode: 'serial' })
 
+function runHelper(command: string): string {
+  return execSync('npx tsx scripts/e2e-db-helper.ts ' + command, {
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      ADMIN_EMAIL,
+      ADMIN_PASSWORD,
+      NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || '',
+    },
+  })
+}
+
 test.describe('TOTP 2FA Regression', () => {
+
+  test.beforeEach(async () => {
+    // Reset server-side rate limits between tests
+    try {
+      await fetch(`${BASE_URL}/api/test/clear-rate-limit`, { method: 'POST' })
+    } catch {
+      // Ignore errors - endpoint unavailable in production
+    }
+  })
 
   /**
    * Setup TOTP for the admin user via API
    * This requires a valid session, so we login first via the UI
    */
   async function setupTOTP(page: Page): Promise<{ secret: string; encryptedSecret: string }> {
+    // Reset auth state so each run starts with 2FA disabled
+    runHelper('reset-auth')
+
     // First, login with password only
     await page.goto(`${BASE_URL}/admin/login`)
     
@@ -50,23 +72,7 @@ test.describe('TOTP 2FA Regression', () => {
     // Get current URL to see where we ended up
     const currentUrl = page.url()
 
-    // If already on verify-2fa, we're already in TOTP mode - that's OK for this test
-    if (currentUrl.includes('/admin/verify-2fa')) {
-      console.log('User already has 2FA enabled from previous run - continuing with test')
-      // We need to verify with TOTP first, then proceed
-       const otp = new OTP()
-       const token = otp.generateSync({ secret: process.env.ADMIN_TOTP_SECRET || 'secret' })
-       await page.fill('input[placeholder="000000"]', token)
-       await page.click('button:has-text("Verify")')
-      
-      // Now we should be on /admin
-     await expect(page).toHaveURL(`${BASE_URL}/admin`)
-      
-      // Return dummy values since we can't get the original secret
-      return { secret: 'already-enabled', encryptedSecret: 'already-enabled' }
-    }
-
-    // Should be on /admin now
+    // Should be on /admin now (2FA was reset above)
     if (!currentUrl.includes('/admin')) {
       throw new Error(`Expected to be on /admin, but got: ${currentUrl}`)
     }
@@ -103,11 +109,6 @@ test.describe('TOTP 2FA Regression', () => {
     secret: string,
     encryptedSecret: string
   ): Promise<string[]> {
-    // If 2FA is already enabled, we can't re-enable it
-    if (secret === 'already-enabled') {
-      return []
-    }
-    
     // Generate current TOTP token using otplib (sync generate with options)
     const otp = new OTP()
     const token = otp.generateSync({ secret })
@@ -180,7 +181,7 @@ test.describe('TOTP 2FA Regression', () => {
 
     // Verify the page shows the 2FA UI
     await expect(page.locator('h1')).toContainText('Two-Factor Authentication')
-    await expect(page.locator('text=Enter the code from your authenticator app')).toBeVisible()
+    await expect(page.locator('text=Enter the 6-digit code from your authenticator app')).toBeVisible()
     await expect(page.locator('input[placeholder="000000"]')).toBeVisible()
   }
 

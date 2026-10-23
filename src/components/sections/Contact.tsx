@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Mail, User, Building, Send } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
@@ -10,7 +10,11 @@ export const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const formTimestampRef = useRef(Date.now())
+  const formTimestampRef = useRef(0)
+
+  useEffect(() => {
+    formTimestampRef.current = Date.now()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -27,7 +31,7 @@ export const Contact = () => {
       subject: formData.get('subject') as string || undefined,
       message: formData.get('message') as string,
       _hp: formData.get('_hp') as string || undefined,
-      _ts: formData.get('_ts') as string || undefined,
+      _ts: String(formTimestampRef.current) || undefined,
     }
     
     try {
@@ -155,11 +159,6 @@ export const Contact = () => {
                     name="_hp"
                     tabIndex={-1}
                     suppressHydrationWarning
-                  />
-<input
-  type="hidden"
-  name="_ts"
-  value={formTimestampRef.current}
                   />
                 </div>
                 <Button

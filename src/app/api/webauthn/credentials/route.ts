@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { rateLimit } from '@/lib/rateLimit'
 import { logAPIRequest } from '@/lib/security-logger'
 
-const authRateLimit = rateLimit('auth')
+const apiRateLimit = rateLimit('api')
 
 function getClientIp(request: NextRequest): string {
   const forwarded = request.headers.get('x-forwarded-for')
@@ -15,7 +15,7 @@ function getClientIp(request: NextRequest): string {
 }
 
 export async function GET(request: NextRequest) {
-  const limitedResponse = await authRateLimit(request)
+  const limitedResponse = await apiRateLimit(request)
   if (limitedResponse) return limitedResponse
 
   const session = await auth()

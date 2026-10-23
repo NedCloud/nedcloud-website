@@ -20,8 +20,9 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Both spec files mutate the same admin user's 2FA state and share the
+     in-memory rate-limit store, so tests must run one at a time. */
+  workers: 1,
   
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [

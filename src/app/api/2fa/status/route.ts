@@ -3,10 +3,10 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { rateLimit } from '@/lib/rateLimit'
 
-const authRateLimit = rateLimit('auth')
+const apiRateLimit = rateLimit('api')
 
 export async function GET(request: NextRequest) {
-  const limitedResponse = await authRateLimit(request)
+  const limitedResponse = await apiRateLimit(request)
   if (limitedResponse) return limitedResponse
 
   const session = await auth()
